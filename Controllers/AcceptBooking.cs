@@ -36,8 +36,9 @@ namespace GoChauffeurWebApi.Controllers
                         if (flag == 1)
                         {
                             tripdata.IsReserved = true;
+						    tripdata.IsAccepted = true; // mark to accept as soon as it is accepted so no other driver accepts it.
 
-                            var userdata = await _context.Users.FindAsync(tripdata.UserId);
+						var userdata = await _context.Users.FindAsync(tripdata.UserId);
                             if (userdata != null)
                             {
                                 string text = $"Dear Patron, Your booking is confirmed! Driver details will be shared 30 mins prior to scheduled time. Booking ID: {tripdata.TripId}. Track your booking on GoChauffeurs app!";

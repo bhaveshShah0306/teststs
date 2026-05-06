@@ -21,598 +21,598 @@ namespace GoChauffeurWebApi.Controllers
         {
             _context = context;
         }
+		#region previous dead code
+		//[HttpGet]
+		//public async Task<ActionResult<IEnumerable<TripVM>>> GetTrips(int id)
+		//{
+		//    try
+		//    {
+		//        var drivers = _context.Drivers.Find(id);
+		//        var ignoretrips = _context.IgnoredTrips.Where(c => c.DriverId == id).ToList();
+		//        var distancetogettripsdata = _context.Driversurroundingtrips.FirstOrDefault();
+		//        int? distancetocover = 0;
+		//        if (distancetogettripsdata != null)
+		//        {
+		//            distancetocover = distancetogettripsdata.Distance;
+		//        }
+		//        else
+		//        {
+		//            distancetocover = 30;
+		//        }
+		//        if (drivers != null)
+		//        {
+
+		//            string transmissionTypesString = drivers.TransmissionTypeId;
+		//            string[] transmissionTypeStrings = new string[] { };
+		//            if (drivers.TransmissionTypeId != string.Empty && drivers.TransmissionTypeId != null)
+		//            {
+
+		//                transmissionTypeStrings = transmissionTypesString.Split(',');
+
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<TripVM>>> GetTrips(int id)
-        //{
-        //    try
-        //    {
-        //        var drivers = _context.Drivers.Find(id);
-        //        var ignoretrips = _context.IgnoredTrips.Where(c => c.DriverId == id).ToList();
-        //        var distancetogettripsdata = _context.Driversurroundingtrips.FirstOrDefault();
-        //        int? distancetocover = 0;
-        //        if (distancetogettripsdata != null)
-        //        {
-        //            distancetocover = distancetogettripsdata.Distance;
-        //        }
-        //        else
-        //        {
-        //            distancetocover = 30;
-        //        }
-        //        if (drivers != null)
-        //        {
-
-        //            string transmissionTypesString = drivers.TransmissionTypeId;
-        //            string[] transmissionTypeStrings = new string[] { };
-        //            if (drivers.TransmissionTypeId != string.Empty && drivers.TransmissionTypeId != null)
-        //            {
-
-        //                transmissionTypeStrings = transmissionTypesString.Split(',');
+		//            }
+		//            List<int> transmissionTypes = transmissionTypeStrings.Select(int.Parse).ToList();
+		//            string vehicletypestring = drivers.VehicleTypeIds;
+		//            string[] vehicletypeStrings = new string[] { };
+		//            if (vehicletypestring != string.Empty && drivers.TransmissionTypeId != null)
+		//            {
+
+		//                vehicletypeStrings = vehicletypestring.Split(',');
+		//            }
+
+		//            List<int> vehicletypes = vehicletypeStrings.Select(int.Parse).ToList();
+		//            var tripdata = new List<Trip>();
+		//            if (transmissionTypesString != null && transmissionTypesString != string.Empty && vehicletypestring != string.Empty && drivers.TransmissionTypeId != null)
+		//            {
+		//                var driverId = id; // Specify the DriverId to check
+		//                tripdata = _context.Trips
+		//            .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue)
+		//                          && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
+		//                          && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue ))
+		//            .ToList();
+
+
+
+		//            }
+		//            else
+		//            {
+		//                return BadRequest("Please contact admin to update vehicletypes ");
+		//            }
+
+		//            var tripVMList = new List<TripVM>();
+
+		//            if (tripdata.Count > 0)
+		//            {
+
+		//                foreach (var trip in tripdata)
+		//                {
+		//                    var ignoredtripsofdriver = ignoretrips.Where(c => c.TripId == trip.TripId).FirstOrDefault();
+		//                    if (trip.FromLocation != null && trip.FromLocation != string.Empty)
+		//                    {
 
+		//                        if (ignoredtripsofdriver == null)
+		//                        {
+		//                            var locatrip = trip.FromLocation.Split(',').ToList();
+		//                            var driverDistance = distance(Convert.ToDouble(locatrip[0]), Convert.ToDouble(locatrip[1]), Convert.ToDouble(drivers.Latitude), Convert.ToDouble(drivers.Longitude), 'K');
+		//                            var tripVM = new TripVM();
+		//                            tripVM.IsTimeScheduled = trip.IsTimeScheduled;
+		//                            if (driverDistance < distancetocover)
+		//                            {
+		//                                if (trip.IsTimeScheduled == true)
+		//                                {
+		//                                    var dataconfiguretime = _context.Schuduletriptimechagemodel.Where(c => c.TripTypeId == trip.TripTypeId).FirstOrDefault();
+		//                                    if (dataconfiguretime != null)
+		//                                    {
+		//                                        TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
-        //            }
-        //            List<int> transmissionTypes = transmissionTypeStrings.Select(int.Parse).ToList();
-        //            string vehicletypestring = drivers.VehicleTypeIds;
-        //            string[] vehicletypeStrings = new string[] { };
-        //            if (vehicletypestring != string.Empty && drivers.TransmissionTypeId != null)
-        //            {
+		//                                        DateTime istStartDateTime = TimeZoneInfo.ConvertTimeFromUtc(trip.StartDateTime.Value, istTimeZone);
+		//                                        DateTime currentIstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istTimeZone);
 
-        //                vehicletypeStrings = vehicletypestring.Split(',');
-        //            }
-
-        //            List<int> vehicletypes = vehicletypeStrings.Select(int.Parse).ToList();
-        //            var tripdata = new List<Trip>();
-        //            if (transmissionTypesString != null && transmissionTypesString != string.Empty && vehicletypestring != string.Empty && drivers.TransmissionTypeId != null)
-        //            {
-        //                var driverId = id; // Specify the DriverId to check
-        //                tripdata = _context.Trips
-        //            .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue)
-        //                          && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
-        //                          && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue ))
-        //            .ToList();
-
-
-
-        //            }
-        //            else
-        //            {
-        //                return BadRequest("Please contact admin to update vehicletypes ");
-        //            }
-
-        //            var tripVMList = new List<TripVM>();
-
-        //            if (tripdata.Count > 0)
-        //            {
-
-        //                foreach (var trip in tripdata)
-        //                {
-        //                    var ignoredtripsofdriver = ignoretrips.Where(c => c.TripId == trip.TripId).FirstOrDefault();
-        //                    if (trip.FromLocation != null && trip.FromLocation != string.Empty)
-        //                    {
+		//                                        DateTime currentIstTimePlus45Minutes = currentIstTime.AddMinutes(Convert.ToInt32(dataconfiguretime.SchuduletripDuration));
+		//                                        if (trip.IsReserved == true)
+		//                                        {
 
-        //                        if (ignoredtripsofdriver == null)
-        //                        {
-        //                            var locatrip = trip.FromLocation.Split(',').ToList();
-        //                            var driverDistance = distance(Convert.ToDouble(locatrip[0]), Convert.ToDouble(locatrip[1]), Convert.ToDouble(drivers.Latitude), Convert.ToDouble(drivers.Longitude), 'K');
-        //                            var tripVM = new TripVM();
-        //                            tripVM.IsTimeScheduled = trip.IsTimeScheduled;
-        //                            if (driverDistance < distancetocover)
-        //                            {
-        //                                if (trip.IsTimeScheduled == true)
-        //                                {
-        //                                    var dataconfiguretime = _context.Schuduletriptimechagemodel.Where(c => c.TripTypeId == trip.TripTypeId).FirstOrDefault();
-        //                                    if (dataconfiguretime != null)
-        //                                    {
-        //                                        TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+		//                                            DateTime? startTimes = trip.StartDateTime;
 
-        //                                        DateTime istStartDateTime = TimeZoneInfo.ConvertTimeFromUtc(trip.StartDateTime.Value, istTimeZone);
-        //                                        DateTime currentIstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istTimeZone);
+		//                                            var starttimes = String.Format("{0:h:mm tt}", startTimes);
 
-        //                                        DateTime currentIstTimePlus45Minutes = currentIstTime.AddMinutes(Convert.ToInt32(dataconfiguretime.SchuduletripDuration));
-        //                                        if (trip.IsReserved == true)
-        //                                        {
+		//                                            currentIstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istTimeZone);
+		//                                            // Assuming tripVM.StartTime is a string representing a date and time
+		//                                            tripVM.StartTime = starttimes;
 
-        //                                            DateTime? startTimes = trip.StartDateTime;
+		//                                            // Convert StartTime string to DateTime
+		//                                            DateTime startTimeDateTime = DateTime.Parse(tripVM.StartTime);
 
-        //                                            var starttimes = String.Format("{0:h:mm tt}", startTimes);
+		//                                            // Convert the duration to an integer
+		//                                            int duration = Convert.ToInt32(dataconfiguretime.SchuduletripDuration);
 
-        //                                            currentIstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, istTimeZone);
-        //                                            // Assuming tripVM.StartTime is a string representing a date and time
-        //                                            tripVM.StartTime = starttimes;
+		//                                            // Calculate the time before the duration
+		//                                            DateTime beforeDurationTime = startTimeDateTime.AddMinutes(-duration);
 
-        //                                            // Convert StartTime string to DateTime
-        //                                            DateTime startTimeDateTime = DateTime.Parse(tripVM.StartTime);
+		//                                            // Define AcceptTimeTo as beforeDurationTime
+		//                                            DateTime AcceptTimeTo = beforeDurationTime;
 
-        //                                            // Convert the duration to an integer
-        //                                            int duration = Convert.ToInt32(dataconfiguretime.SchuduletripDuration);
 
-        //                                            // Calculate the time before the duration
-        //                                            DateTime beforeDurationTime = startTimeDateTime.AddMinutes(-duration);
 
-        //                                            // Define AcceptTimeTo as beforeDurationTime
-        //                                            DateTime AcceptTimeTo = beforeDurationTime;
+		//                                            // Define AcceptTimeFrom as the beginning of the hour of beforeDurationTime
+		//                                            DateTime AcceptTimeFrom = new DateTime(beforeDurationTime.Year, beforeDurationTime.Month, beforeDurationTime.Day, beforeDurationTime.Hour, 0, 0);
 
 
+		//                                            // Output the results (if needed for debugging)
+		//                                            Console.WriteLine($"AcceptTimeFrom: {AcceptTimeFrom}");
+		//                                            Console.WriteLine($"AcceptTimeTo: {AcceptTimeTo}");
 
-        //                                            // Define AcceptTimeFrom as the beginning of the hour of beforeDurationTime
-        //                                            DateTime AcceptTimeFrom = new DateTime(beforeDurationTime.Year, beforeDurationTime.Month, beforeDurationTime.Day, beforeDurationTime.Hour, 0, 0);
+		//                                            // You can assign these values to the appropriate properties in your view model if needed
+		//                                            tripVM.Accepttimefrom = AcceptTimeFrom;
+		//                                            tripVM.AccepttimeTo = AcceptTimeTo;
 
 
-        //                                            // Output the results (if needed for debugging)
-        //                                            Console.WriteLine($"AcceptTimeFrom: {AcceptTimeFrom}");
-        //                                            Console.WriteLine($"AcceptTimeTo: {AcceptTimeTo}");
 
-        //                                            // You can assign these values to the appropriate properties in your view model if needed
-        //                                            tripVM.Accepttimefrom = AcceptTimeFrom;
-        //                                            tripVM.AccepttimeTo = AcceptTimeTo;
 
+		//                                        }
 
+		//                                        if (istStartDateTime < currentIstTimePlus45Minutes)
+		//                                        {
+		//                                            await Udatetriptoinstant(trip.TripId);
+		//                                            tripVM.IsTimeScheduled = false;
+		//                                        }
+		//                                    }
+		//                                }
+		//                                tripVM.TripId = trip.TripId;
+		//                                tripVM.IsAccepted = trip.IsAccepted;
+		//                                tripVM.TripsUniqueId = trip.TripsUniqueId;
+		//                                tripVM.ExpectedDistance = Math.Round(Convert.ToDecimal(driverDistance), 2);
 
+		//                                tripVM.UserId = trip.UserId;
+		//                                tripVM.NoOfHoursSelected = trip.NoOfHoursSelected;
+		//                                var userdata = _context.Users.Find(tripVM.UserId);
 
-        //                                        }
+		//                                if (userdata != null)
+		//                                {
+		//                                    tripVM.UserName = userdata.Name;
+		//                                    tripVM.UserPhoneNumber = userdata.PhoneNumber;
+		//                                    tripVM.Image = userdata.UserImage;
+		//                                }
 
-        //                                        if (istStartDateTime < currentIstTimePlus45Minutes)
-        //                                        {
-        //                                            await Udatetriptoinstant(trip.TripId);
-        //                                            tripVM.IsTimeScheduled = false;
-        //                                        }
-        //                                    }
-        //                                }
-        //                                tripVM.TripId = trip.TripId;
-        //                                tripVM.IsAccepted = trip.IsAccepted;
-        //                                tripVM.TripsUniqueId = trip.TripsUniqueId;
-        //                                tripVM.ExpectedDistance = Math.Round(Convert.ToDecimal(driverDistance), 2);
+		//                                tripVM.DriverId = id;
+		//                                tripVM.IsReserved = trip.IsReserved;
+		//                                var driverdata = _context.Drivers.Find(tripVM.DriverId);
 
-        //                                tripVM.UserId = trip.UserId;
-        //                                tripVM.NoOfHoursSelected = trip.NoOfHoursSelected;
-        //                                var userdata = _context.Users.Find(tripVM.UserId);
+		//                                if (driverdata != null)
+		//                                {
 
-        //                                if (userdata != null)
-        //                                {
-        //                                    tripVM.UserName = userdata.Name;
-        //                                    tripVM.UserPhoneNumber = userdata.PhoneNumber;
-        //                                    tripVM.Image = userdata.UserImage;
-        //                                }
+		//                                    tripVM.DriverName = driverdata.DriverName;
 
-        //                                tripVM.DriverId = id;
-        //                                tripVM.IsReserved = trip.IsReserved;
-        //                                var driverdata = _context.Drivers.Find(tripVM.DriverId);
+		//                                    tripVM.DriverImage = driverdata.Image;
 
-        //                                if (driverdata != null)
-        //                                {
+		//                                    tripVM.Experience = driverdata.Experiance;
 
-        //                                    tripVM.DriverName = driverdata.DriverName;
+		//                                }
 
-        //                                    tripVM.DriverImage = driverdata.Image;
+		//                                tripVM.PickUPMapURL = trip.PickUPMapURL;
+		//                                tripVM.DropUPMapURL = trip.DropUPMapURL;
+		//                                tripVM.IsTimeScheduled = trip.IsTimeScheduled;
+		//                                tripVM.StartDate = trip.StartDateTime;
+		//                                tripVM.FromLocationName = trip.FromLocationName;
+		//                                tripVM.ToLocationName = trip.ToLocationName;
+		//                                tripVM.EstimatedPrice = trip.EstimatedPrice;
 
-        //                                    tripVM.Experience = driverdata.Experiance;
+		//                                DateTime? startTime = tripVM.StartDate;
 
-        //                                }
+		//                                var starttime = String.Format("{0:h:mm tt}", startTime);
 
-        //                                tripVM.PickUPMapURL = trip.PickUPMapURL;
-        //                                tripVM.DropUPMapURL = trip.DropUPMapURL;
-        //                                tripVM.IsTimeScheduled = trip.IsTimeScheduled;
-        //                                tripVM.StartDate = trip.StartDateTime;
-        //                                tripVM.FromLocationName = trip.FromLocationName;
-        //                                tripVM.ToLocationName = trip.ToLocationName;
-        //                                tripVM.EstimatedPrice = trip.EstimatedPrice;
+		//                                tripVM.StartTime = starttime;
 
-        //                                DateTime? startTime = tripVM.StartDate;
+		//                                tripVM.EndDate = trip.EndDateTime;
 
-        //                                var starttime = String.Format("{0:h:mm tt}", startTime);
+		//                                DateTime? endTime = tripVM.EndDate;
 
-        //                                tripVM.StartTime = starttime;
+		//                                var endtime = String.Format("{0:h:mm tt}", endTime);
 
-        //                                tripVM.EndDate = trip.EndDateTime;
+		//                                tripVM.EndTime = endtime;
 
-        //                                DateTime? endTime = tripVM.EndDate;
+		//                                tripVM.ActualEndDate = trip.ActualEndTime;
 
-        //                                var endtime = String.Format("{0:h:mm tt}", endTime);
+		//                                DateTime? actualendTime = tripVM.ActualEndDate;
 
-        //                                tripVM.EndTime = endtime;
+		//                                var actualendtime = String.Format("{0:h:mm tt}", actualendTime);
 
-        //                                tripVM.ActualEndDate = trip.ActualEndTime;
+		//                                tripVM.ActualEndTime = actualendtime;
 
-        //                                DateTime? actualendTime = tripVM.ActualEndDate;
+		//                                if (tripVM.StartDate.HasValue && tripVM.ActualEndDate.HasValue)
+		//                                {
+		//                                    TimeSpan duration = tripVM.ActualEndDate.Value - tripVM.StartDate.Value;
 
-        //                                var actualendtime = String.Format("{0:h:mm tt}", actualendTime);
+		//                                    double minutes = duration.TotalMinutes;
+		//                                    tripVM.ActualTotalMinutes = minutes;
+		//                                }
 
-        //                                tripVM.ActualEndTime = actualendtime;
+		//                                if (tripVM.StartDate.HasValue && tripVM.EndDate.HasValue)
+		//                                {
+		//                                    TimeSpan duration = tripVM.EndDate.Value - tripVM.StartDate.Value;
 
-        //                                if (tripVM.StartDate.HasValue && tripVM.ActualEndDate.HasValue)
-        //                                {
-        //                                    TimeSpan duration = tripVM.ActualEndDate.Value - tripVM.StartDate.Value;
+		//                                    double minutes = duration.TotalMinutes;
 
-        //                                    double minutes = duration.TotalMinutes;
-        //                                    tripVM.ActualTotalMinutes = minutes;
-        //                                }
+		//                                    tripVM.TotalMinutes = minutes;
+		//                                }
 
-        //                                if (tripVM.StartDate.HasValue && tripVM.EndDate.HasValue)
-        //                                {
-        //                                    TimeSpan duration = tripVM.EndDate.Value - tripVM.StartDate.Value;
+		//                                tripVM.RequestedDate = trip.RequstedDateTime;
 
-        //                                    double minutes = duration.TotalMinutes;
+		//                                DateTime? requestedTime = tripVM.RequestedDate;
 
-        //                                    tripVM.TotalMinutes = minutes;
-        //                                }
+		//                                var requestedtime = String.Format("{0:h:mm tt}", requestedTime);
 
-        //                                tripVM.RequestedDate = trip.RequstedDateTime;
+		//                                tripVM.RequestedTime = requestedtime;
 
-        //                                DateTime? requestedTime = tripVM.RequestedDate;
+		//                                tripVM.TripTypeId = trip.TripTypeId;
 
-        //                                var requestedtime = String.Format("{0:h:mm tt}", requestedTime);
+		//                                tripVM.IsTripCompByDriver = trip.IsTripCompByDriver;
 
-        //                                tripVM.RequestedTime = requestedtime;
+		//                                var tripTypeData = _context.TripTypes.Find(trip.TripTypeId);
 
-        //                                tripVM.TripTypeId = trip.TripTypeId;
+		//                                if (tripTypeData != null)
+		//                                {
 
-        //                                tripVM.IsTripCompByDriver = trip.IsTripCompByDriver;
+		//                                    tripVM.TripTypeName = tripTypeData.TripName;
 
-        //                                var tripTypeData = _context.TripTypes.Find(trip.TripTypeId);
+		//                                }
 
-        //                                if (tripTypeData != null)
-        //                                {
+		//                                tripVM.TripvarientId = trip.TripvarientId;
 
-        //                                    tripVM.TripTypeName = tripTypeData.TripName;
+		//                                var triptypevariantdata = _context.TripVariants.Find(trip.TripvarientId);
 
-        //                                }
+		//                                if (triptypevariantdata != null)
+		//                                {
 
-        //                                tripVM.TripvarientId = trip.TripvarientId;
+		//                                    tripVM.BasePrice = triptypevariantdata.BasePrice;
 
-        //                                var triptypevariantdata = _context.TripVariants.Find(trip.TripvarientId);
+		//                                    tripVM.KilometerLimit = triptypevariantdata.KilometerLimit;
 
-        //                                if (triptypevariantdata != null)
-        //                                {
+		//                                    tripVM.NightCharges = triptypevariantdata.NightCharges;
 
-        //                                    tripVM.BasePrice = triptypevariantdata.BasePrice;
+		//                                    tripVM.ChargesperMinute = triptypevariantdata.ChargesperMinute;
 
-        //                                    tripVM.KilometerLimit = triptypevariantdata.KilometerLimit;
+		//                                    tripVM.PricePerKilometers = triptypevariantdata.PricePerKilometers;
 
-        //                                    tripVM.NightCharges = triptypevariantdata.NightCharges;
+		//                                    tripVM.IsTripOneway = triptypevariantdata.IsTripOneway;
 
-        //                                    tripVM.ChargesperMinute = triptypevariantdata.ChargesperMinute;
+		//                                }
 
-        //                                    tripVM.PricePerKilometers = triptypevariantdata.PricePerKilometers;
+		//                                tripVM.VehicleId = trip.VehicleId;
 
-        //                                    tripVM.IsTripOneway = triptypevariantdata.IsTripOneway;
+		//                                if (trip.VehicleId != 0)
+		//                                {
 
-        //                                }
+		//                                    var vehicledata = _context.Vehicles.Find(trip.VehicleId);
 
-        //                                tripVM.VehicleId = trip.VehicleId;
+		//                                    if (vehicledata != null)
+		//                                    {
 
-        //                                if (trip.VehicleId != 0)
-        //                                {
+		//                                        tripVM.VehicleNo = vehicledata.VehicleNo;
 
-        //                                    var vehicledata = _context.Vehicles.Find(trip.VehicleId);
+		//                                        if (!string.IsNullOrEmpty(vehicledata.Images))
+		//                                        {
 
-        //                                    if (vehicledata != null)
-        //                                    {
+		//                                            var images = vehicledata.Images.Split(',').ToList();
 
-        //                                        tripVM.VehicleNo = vehicledata.VehicleNo;
+		//                                            var vehicleimagelist = new List<VehicleImages>();
 
-        //                                        if (!string.IsNullOrEmpty(vehicledata.Images))
-        //                                        {
+		//                                            if (images.Count > 0)
+		//                                            {
 
-        //                                            var images = vehicledata.Images.Split(',').ToList();
+		//                                                foreach (var image in images)
+		//                                                {
 
-        //                                            var vehicleimagelist = new List<VehicleImages>();
+		//                                                    var imagevm = new VehicleImages();
 
-        //                                            if (images.Count > 0)
-        //                                            {
+		//                                                    imagevm.VechileImage = image;
 
-        //                                                foreach (var image in images)
-        //                                                {
+		//                                                    vehicleimagelist.Add(imagevm);
+		//                                                }
+		//                                            }
 
-        //                                                    var imagevm = new VehicleImages();
+		//                                            tripVM.VehicleImages = vehicleimagelist;
+		//                                        }
 
-        //                                                    imagevm.VechileImage = image;
+		//                                        tripVM.VehicleTypeId = vehicledata.VehicleTypeId;
 
-        //                                                    vehicleimagelist.Add(imagevm);
-        //                                                }
-        //                                            }
+		//                                        if (tripVM.VehicleTypeId == 0)
+		//                                        {
 
-        //                                            tripVM.VehicleImages = vehicleimagelist;
-        //                                        }
+		//                                            var vehicletypedata = _context.VehicleTypes.Find(tripVM.VehicleTypeId);
 
-        //                                        tripVM.VehicleTypeId = vehicledata.VehicleTypeId;
+		//                                            if (vehicletypedata != null)
+		//                                            {
 
-        //                                        if (tripVM.VehicleTypeId == 0)
-        //                                        {
+		//                                                tripVM.VehicleTypeName = vehicletypedata.VehicleTypeName;
+		//                                            }
+		//                                        }
 
-        //                                            var vehicletypedata = _context.VehicleTypes.Find(tripVM.VehicleTypeId);
 
-        //                                            if (vehicletypedata != null)
-        //                                            {
+		//                                    }
 
-        //                                                tripVM.VehicleTypeName = vehicletypedata.VehicleTypeName;
-        //                                            }
-        //                                        }
+		//                                }
+		//                                if (!string.IsNullOrEmpty(trip.FromLocation))
+		//                                {
 
+		//                                    var fromLocations = trip.FromLocation.Split(',').ToList();
 
-        //                                    }
+		//                                    if (fromLocations.Count > 0)
+		//                                    {
 
-        //                                }
-        //                                if (!string.IsNullOrEmpty(trip.FromLocation))
-        //                                {
+		//                                        tripVM.FromLatitude = fromLocations[0];
 
-        //                                    var fromLocations = trip.FromLocation.Split(',').ToList();
+		//                                        tripVM.FromLongitude = fromLocations[1];
 
-        //                                    if (fromLocations.Count > 0)
-        //                                    {
+		//                                    }
+		//                                }
+		//                                if (!string.IsNullOrEmpty(trip.ToLocation))
+		//                                {
 
-        //                                        tripVM.FromLatitude = fromLocations[0];
+		//                                    var toLocations = trip.ToLocation.Split(',').ToList();
 
-        //                                        tripVM.FromLongitude = fromLocations[1];
+		//                                    if (toLocations.Count > 0)
+		//                                    {
 
-        //                                    }
-        //                                }
-        //                                if (!string.IsNullOrEmpty(trip.ToLocation))
-        //                                {
+		//                                        tripVM.ToLatitude = toLocations[0];
 
-        //                                    var toLocations = trip.ToLocation.Split(',').ToList();
+		//                                        tripVM.ToLongitude = toLocations[1];
+		//                                    }
+		//                                }
+		//                                tripVM.ImageUrlsList = trip.ImageUrlsList;
+		//                                if (tripVM.ImageUrlsList != null && tripVM.ImageUrlsList != "")
+		//                                {
+		//                                    var imageurls = trip.ImageUrlsList.Split(',').ToList();
+		//                                    var imageurlslist = new List<Imageurls>();
+		//                                    if (imageurls.Count > 0)
+		//                                    {
+		//                                        foreach (var imageUrl in imageurls)
+		//                                        {
+		//                                            var imagevm = new Imageurls();
+		//                                            imagevm.Images = imageUrl;
+		//                                            imageurlslist.Add(imagevm);
+		//                                        }
+		//                                    }
+		//                                    tripVM.imageurls = imageurlslist;
+		//                                }
+		//                                int travelledonroaddistance = 0;
 
-        //                                    if (toLocations.Count > 0)
-        //                                    {
+		//                                var drivertracking = _context.DriverTrackings.Where(c => c.DriverId == tripVM.DriverId && c.TripId == tripVM.TripId).ToList();
 
-        //                                        tripVM.ToLatitude = toLocations[0];
+		//                                if (drivertracking.Count > 1)
+		//                                {
 
-        //                                        tripVM.ToLongitude = toLocations[1];
-        //                                    }
-        //                                }
-        //                                tripVM.ImageUrlsList = trip.ImageUrlsList;
-        //                                if (tripVM.ImageUrlsList != null && tripVM.ImageUrlsList != "")
-        //                                {
-        //                                    var imageurls = trip.ImageUrlsList.Split(',').ToList();
-        //                                    var imageurlslist = new List<Imageurls>();
-        //                                    if (imageurls.Count > 0)
-        //                                    {
-        //                                        foreach (var imageUrl in imageurls)
-        //                                        {
-        //                                            var imagevm = new Imageurls();
-        //                                            imagevm.Images = imageUrl;
-        //                                            imageurlslist.Add(imagevm);
-        //                                        }
-        //                                    }
-        //                                    tripVM.imageurls = imageurlslist;
-        //                                }
-        //                                int travelledonroaddistance = 0;
+		//                                    var currentEntry = drivertracking.FirstOrDefault();
 
-        //                                var drivertracking = _context.DriverTrackings.Where(c => c.DriverId == tripVM.DriverId && c.TripId == tripVM.TripId).ToList();
+		//                                    var nextEntry = drivertracking.Last();
 
-        //                                if (drivertracking.Count > 1)
-        //                                {
 
-        //                                    var currentEntry = drivertracking.FirstOrDefault();
+		//                                    Decimal? currentLatitude = currentEntry.Latitude;
 
-        //                                    var nextEntry = drivertracking.Last();
+		//                                    Decimal? currentLongitude = currentEntry.Longitude;
 
+		//                                    Decimal? nextLatitude = nextEntry.Latitude;
 
-        //                                    Decimal? currentLatitude = currentEntry.Latitude;
+		//                                    Decimal? nextLongitude = nextEntry.Longitude;
 
-        //                                    Decimal? currentLongitude = currentEntry.Longitude;
+		//                                    var actualgoogledistanceresult = await GetGoogleDistance(currentLatitude.ToString(), currentLatitude.ToString(), nextLatitude.ToString(), nextLongitude.ToString());
+		//                                    int actualgoogledistance = 0;
+		//                                    if (actualgoogledistanceresult.Result == null)
+		//                                    {
 
-        //                                    Decimal? nextLatitude = nextEntry.Latitude;
+		//                                        actualgoogledistance = Convert.ToInt32(actualgoogledistanceresult.Value);
+		//                                    }
+		//                                    else
+		//                                    {
 
-        //                                    Decimal? nextLongitude = nextEntry.Longitude;
+		//                                        actualgoogledistance = Convert.ToInt32(actualgoogledistanceresult);
+		//                                    }
 
-        //                                    var actualgoogledistanceresult = await GetGoogleDistance(currentLatitude.ToString(), currentLatitude.ToString(), nextLatitude.ToString(), nextLongitude.ToString());
-        //                                    int actualgoogledistance = 0;
-        //                                    if (actualgoogledistanceresult.Result == null)
-        //                                    {
+		//                                    travelledonroaddistance += actualgoogledistance;
 
-        //                                        actualgoogledistance = Convert.ToInt32(actualgoogledistanceresult.Value);
-        //                                    }
-        //                                    else
-        //                                    {
+		//                                }
 
-        //                                        actualgoogledistance = Convert.ToInt32(actualgoogledistanceresult);
-        //                                    }
+		//                                var entityDistance = distance(Convert.ToDouble(tripVM.FromLatitude), Convert.ToDouble(tripVM.FromLongitude), Convert.ToDouble(tripVM.ToLatitude), Convert.ToDouble(tripVM.ToLongitude), 'K');
 
-        //                                    travelledonroaddistance += actualgoogledistance;
 
-        //                                }
+		//                                tripVM.AerialDistance = Math.Round(Convert.ToDecimal(entityDistance), 2);
 
-        //                                var entityDistance = distance(Convert.ToDouble(tripVM.FromLatitude), Convert.ToDouble(tripVM.FromLongitude), Convert.ToDouble(tripVM.ToLatitude), Convert.ToDouble(tripVM.ToLongitude), 'K');
+		//                                var aerialDistancedata = _context.AerialDistancePrices.ToList();
 
+		//                                if (aerialDistancedata.Count > 0)
+		//                                {
 
-        //                                tripVM.AerialDistance = Math.Round(Convert.ToDecimal(entityDistance), 2);
+		//                                    tripVM.Aerialpriceperkilometer = Convert.ToDecimal(aerialDistancedata[0].AerialDistancePriceperKilometer);
+		//                                }
 
-        //                                var aerialDistancedata = _context.AerialDistancePrices.ToList();
+		//                                tripVM.ExpectedDistance = trip.ExpectedDistance;
 
-        //                                if (aerialDistancedata.Count > 0)
-        //                                {
+		//                                tripVM.CuponId = tripVM.CuponId;
 
-        //                                    tripVM.Aerialpriceperkilometer = Convert.ToDecimal(aerialDistancedata[0].AerialDistancePriceperKilometer);
-        //                                }
+		//                                var cupondata = _context.Cupons.Find(tripVM.CuponId);
 
-        //                                tripVM.ExpectedDistance = trip.ExpectedDistance;
+		//                                if (cupondata != null)
+		//                                {
 
-        //                                tripVM.CuponId = tripVM.CuponId;
+		//                                    tripVM.CuponName = cupondata.CuponName;
 
-        //                                var cupondata = _context.Cupons.Find(tripVM.CuponId);
+		//                                    tripVM.CuponCode = cupondata.CuponCode;
 
-        //                                if (cupondata != null)
-        //                                {
+		//                                    tripVM.CuponPercentage = cupondata.Percentage;
+		//                                }
+		//                                else if (cupondata == null)
+		//                                {
 
-        //                                    tripVM.CuponName = cupondata.CuponName;
+		//                                    tripVM.CuponPercentage = 0;
+		//                                }
 
-        //                                    tripVM.CuponCode = cupondata.CuponCode;
 
-        //                                    tripVM.CuponPercentage = cupondata.Percentage;
-        //                                }
-        //                                else if (cupondata == null)
-        //                                {
 
-        //                                    tripVM.CuponPercentage = 0;
-        //                                }
 
+		//                                tripVM.IsSecuredTrip = trip.IsSecuredTrip;
 
+		//                                if (tripVM.IsTripOneway == true)    
+		//                                {
 
+		//                                    var expectedextradiatancethanbaseLimit = Math.Abs(Convert.ToDecimal(tripVM.ExpectedDistance) - Convert.ToDecimal(tripVM.KilometerLimit));
 
-        //                                tripVM.IsSecuredTrip = trip.IsSecuredTrip;
 
-        //                                if (tripVM.IsTripOneway == true)    
-        //                                {
+		//                                    var expectedtotalpriceforextradistance = expectedextradiatancethanbaseLimit * tripVM.PricePerKilometers;
 
-        //                                    var expectedextradiatancethanbaseLimit = Math.Abs(Convert.ToDecimal(tripVM.ExpectedDistance) - Convert.ToDecimal(tripVM.KilometerLimit));
+		//                                    var expectedtotalprice = expectedtotalpriceforextradistance + (tripVM.BasePrice * tripVM.NoOfHoursSelected) + tripVM.Aerialpriceperkilometer;
 
+		//                                    var cuponpercentagevalue = expectedtotalprice * tripVM.CuponPercentage / 100;
 
-        //                                    var expectedtotalpriceforextradistance = expectedextradiatancethanbaseLimit * tripVM.PricePerKilometers;
+		//                                    var expectedtotalvaluewithouttax = expectedtotalprice - cuponpercentagevalue;//240
 
-        //                                    var expectedtotalprice = expectedtotalpriceforextradistance + (tripVM.BasePrice * tripVM.NoOfHoursSelected) + tripVM.Aerialpriceperkilometer;
+		//                                    Decimal? securetaxvalue = 0;
 
-        //                                    var cuponpercentagevalue = expectedtotalprice * tripVM.CuponPercentage / 100;
+		//                                    if (tripVM.IsSecuredTrip == true)
+		//                                    {
 
-        //                                    var expectedtotalvaluewithouttax = expectedtotalprice - cuponpercentagevalue;//240
 
-        //                                    Decimal? securetaxvalue = 0;
+		//                                        var insurencedata = _context.InsurenceTaxandPrice.FirstOrDefault();
 
-        //                                    if (tripVM.IsSecuredTrip == true)
-        //                                    {
+		//                                        if (insurencedata != null)
+		//                                        {
 
+		//                                            var taxpercentage = insurencedata.TaxPercentage;
 
-        //                                        var insurencedata = _context.InsurenceTaxandPrice.FirstOrDefault();
+		//                                            var insurencetaxvalue = expectedtotalvaluewithouttax * taxpercentage / 100;
 
-        //                                        if (insurencedata != null)
-        //                                        {
+		//                                            securetaxvalue = insurencetaxvalue;//28.80
+		//                                        }
+		//                                    }
 
-        //                                            var taxpercentage = insurencedata.TaxPercentage;
+		//                                    Decimal travelledtotaltaxvalue = 0;
 
-        //                                            var insurencetaxvalue = expectedtotalvaluewithouttax * taxpercentage / 100;
+		//                                    var taxesdata = _context.Taxes.ToList();
 
-        //                                            securetaxvalue = insurencetaxvalue;//28.80
-        //                                        }
-        //                                    }
+		//                                    if (taxesdata.Count > 0)
+		//                                    {
+		//                                        foreach (var tax in taxesdata)
+		//                                        {
 
-        //                                    Decimal travelledtotaltaxvalue = 0;
+		//                                            var taxpercentage = Convert.ToInt32(tax.Percentage);
 
-        //                                    var taxesdata = _context.Taxes.ToList();
+		//                                            var taxvalue = Convert.ToDecimal(expectedtotalvaluewithouttax) * taxpercentage / 100;
 
-        //                                    if (taxesdata.Count > 0)
-        //                                    {
-        //                                        foreach (var tax in taxesdata)
-        //                                        {
+		//                                            var travelledtaxvalue = Convert.ToDecimal(expectedtotalvaluewithouttax) * taxpercentage / 100;
 
-        //                                            var taxpercentage = Convert.ToInt32(tax.Percentage);
+		//                                            travelledtotaltaxvalue += travelledtaxvalue;//19.20
+		//                                        }
+		//                                    }
 
-        //                                            var taxvalue = Convert.ToDecimal(expectedtotalvaluewithouttax) * taxpercentage / 100;
+		//                                    tripVM.ExpectedTotalTripvalue = (expectedtotalvaluewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);//488
+		//                                    Decimal? totalvaluewithouttax = 0;
+		//                                    if (tripVM.IsTripCompByDriver == true)
+		//                                    {
 
-        //                                            var travelledtaxvalue = Convert.ToDecimal(expectedtotalvaluewithouttax) * taxpercentage / 100;
+		//                                        var extradiatancethanbaseLimit = Convert.ToDecimal(travelledonroaddistance) - Convert.ToDecimal(tripVM.KilometerLimit);
 
-        //                                            travelledtotaltaxvalue += travelledtaxvalue;//19.20
-        //                                        }
-        //                                    }
+		//                                        var totalpriceforextradistance = extradiatancethanbaseLimit * tripVM.PricePerKilometers;
 
-        //                                    tripVM.ExpectedTotalTripvalue = (expectedtotalvaluewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);//488
-        //                                    Decimal? totalvaluewithouttax = 0;
-        //                                    if (tripVM.IsTripCompByDriver == true)
-        //                                    {
+		//                                        var totalprice = totalpriceforextradistance + (tripVM.BasePrice * tripVM.NoOfHoursActual) + tripVM.Aerialpriceperkilometer;
 
-        //                                        var extradiatancethanbaseLimit = Convert.ToDecimal(travelledonroaddistance) - Convert.ToDecimal(tripVM.KilometerLimit);
+		//                                        var actualcuponpercentagevalue = totalprice * tripVM.CuponPercentage / 100;
 
-        //                                        var totalpriceforextradistance = extradiatancethanbaseLimit * tripVM.PricePerKilometers;
+		//                                        totalvaluewithouttax = totalprice - actualcuponpercentagevalue;
 
-        //                                        var totalprice = totalpriceforextradistance + (tripVM.BasePrice * tripVM.NoOfHoursActual) + tripVM.Aerialpriceperkilometer;
+		//                                    }
+		//                                    tripVM.TotalTripValue = Convert.ToString(totalvaluewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);
 
-        //                                        var actualcuponpercentagevalue = totalprice * tripVM.CuponPercentage / 100;
 
-        //                                        totalvaluewithouttax = totalprice - actualcuponpercentagevalue;
+		//                                }
+		//                                else
+		//                                {
+		//                                    var expectedMinutes = tripVM.TotalMinutes;
 
-        //                                    }
-        //                                    tripVM.TotalTripValue = Convert.ToString(totalvaluewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);
+		//                                    var expectedPrice = tripVM.ChargesperMinute * Convert.ToDecimal(expectedMinutes);
+		//                                    var cuponpercentagevalue = expectedPrice * tripVM.CuponPercentage / 100;
+		//                                    var expectedTotalPricewithouttax = expectedPrice + tripVM.NightCharges - cuponpercentagevalue;
 
 
-        //                                }
-        //                                else
-        //                                {
-        //                                    var expectedMinutes = tripVM.TotalMinutes;
+		//                                    Decimal? securetaxvalue = 0;
 
-        //                                    var expectedPrice = tripVM.ChargesperMinute * Convert.ToDecimal(expectedMinutes);
-        //                                    var cuponpercentagevalue = expectedPrice * tripVM.CuponPercentage / 100;
-        //                                    var expectedTotalPricewithouttax = expectedPrice + tripVM.NightCharges - cuponpercentagevalue;
+		//                                    if (tripVM.IsSecuredTrip == true)
+		//                                    {
 
+		//                                        var insurencedata = _context.InsurenceTaxandPrice.FirstOrDefault();
 
-        //                                    Decimal? securetaxvalue = 0;
+		//                                        if (insurencedata != null)
+		//                                        {
 
-        //                                    if (tripVM.IsSecuredTrip == true)
-        //                                    {
+		//                                            var taxpercentage = insurencedata.TaxPercentage;
 
-        //                                        var insurencedata = _context.InsurenceTaxandPrice.FirstOrDefault();
+		//                                            var insurencetaxvalue = expectedTotalPricewithouttax * taxpercentage / 100;
 
-        //                                        if (insurencedata != null)
-        //                                        {
+		//                                            securetaxvalue = insurencetaxvalue;
+		//                                        }
+		//                                    }
 
-        //                                            var taxpercentage = insurencedata.TaxPercentage;
+		//                                    Decimal travelledtotaltaxvalue = 0;
 
-        //                                            var insurencetaxvalue = expectedTotalPricewithouttax * taxpercentage / 100;
+		//                                    var taxesdata = _context.Taxes.ToList();
 
-        //                                            securetaxvalue = insurencetaxvalue;
-        //                                        }
-        //                                    }
+		//                                    if (taxesdata.Count > 0)
+		//                                    {
+		//                                        foreach (var tax in taxesdata)
+		//                                        {
 
-        //                                    Decimal travelledtotaltaxvalue = 0;
+		//                                            var taxpercentage = Convert.ToInt32(tax.Percentage);
 
-        //                                    var taxesdata = _context.Taxes.ToList();
+		//                                            var taxvalue = Convert.ToDecimal(expectedTotalPricewithouttax) * taxpercentage / 100;
 
-        //                                    if (taxesdata.Count > 0)
-        //                                    {
-        //                                        foreach (var tax in taxesdata)
-        //                                        {
+		//                                            var travelledtaxvalue = Convert.ToDecimal(expectedTotalPricewithouttax) * taxpercentage / 100;
 
-        //                                            var taxpercentage = Convert.ToInt32(tax.Percentage);
+		//                                            travelledtotaltaxvalue += travelledtaxvalue;
+		//                                        }
+		//                                    }
+		//                                    tripVM.ExpectedTotalTripvalue =(expectedTotalPricewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);
+		//                                    Decimal? totalvaluewithouttax = 0;
+		//                                    if (tripVM.IsTripCompByDriver == true)
+		//                                    {
 
-        //                                            var taxvalue = Convert.ToDecimal(expectedTotalPricewithouttax) * taxpercentage / 100;
+		//                                        var totalMinutes = tripVM.TotalMinutes;
 
-        //                                            var travelledtaxvalue = Convert.ToDecimal(expectedTotalPricewithouttax) * taxpercentage / 100;
+		//                                        var price = tripVM.ChargesperMinute * Convert.ToDecimal(expectedMinutes);
+		//                                        var totalPricewithouttax = price + tripVM.NightCharges - cuponpercentagevalue;
 
-        //                                            travelledtotaltaxvalue += travelledtaxvalue;
-        //                                        }
-        //                                    }
-        //                                    tripVM.ExpectedTotalTripvalue =(expectedTotalPricewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);
-        //                                    Decimal? totalvaluewithouttax = 0;
-        //                                    if (tripVM.IsTripCompByDriver == true)
-        //                                    {
+		//                                    }
+		//                                    tripVM.TotalTripValue = Convert.ToString(totalvaluewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);
 
-        //                                        var totalMinutes = tripVM.TotalMinutes;
 
-        //                                        var price = tripVM.ChargesperMinute * Convert.ToDecimal(expectedMinutes);
-        //                                        var totalPricewithouttax = price + tripVM.NightCharges - cuponpercentagevalue;
+		//                                }
 
-        //                                    }
-        //                                    tripVM.TotalTripValue = Convert.ToString(totalvaluewithouttax + travelledtotaltaxvalue + securetaxvalue + tripVM.NightCharges);
+		//                                tripVMList.Add(tripVM);
+		//                            }
+		//                        }
+		//                    }
+		//                }
+		//                return Ok(tripVMList);
+		//            }
+		//            else
+		//            {
+		//                return NoContent();
+		//            }
+		//        }
+		//        else
+		//        {
+		//            return NoContent();
+		//        }
 
 
-        //                                }
+		//    }
+		//    catch (Exception ex)
+		//    {
+		//        return BadRequest(ex.Message);
+		//    }
+		//}
 
-        //                                tripVMList.Add(tripVM);
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //                return Ok(tripVMList);
-        //            }
-        //            else
-        //            {
-        //                return NoContent();
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return NoContent();
-        //        }
+		/// Sree upadted code 
+		#endregion
 
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
-
-        /// Sree upadted code 
-
-
-        [HttpGet]
+		[HttpGet]
         public async Task<ActionResult<IEnumerable<TripVM>>> GetTrips(int id)
         {
             try
@@ -659,7 +659,9 @@ namespace GoChauffeurWebApi.Controllers
                         tripdata = _context.Trips
                     .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue)&&c.IsCancelled != true && (c.IsTimeScheduled==false || (c.IsTimeScheduled==true&&c.IsReserved!=true&& c.IsAccepted!=true||(c.IsTimeScheduled == true&&c.IsReserved==true && c.IsAccepted != true && c.DriverId == id)))
                                   && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
-                                  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue)&&c.IsAccepted!=true)
+                                  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue)&&c.IsAccepted!=true
+								  && (c.BroadcastedAt == null ||
+					              c.BroadcastedAt.Value.AddMinutes(20) > DateTime.Now))
                     .ToList();
 
 

@@ -86,5 +86,7 @@
 		public decimal? ExtraTimeUsed { get; set; }
 		public decimal? ExtraTimeCost { get; set; }
 
+		public DateTime? BroadcastedAt { get; set; }
+
 	}
 }

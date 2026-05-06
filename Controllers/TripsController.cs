@@ -2212,14 +2212,15 @@
                     decimal taxAndFee = 25 + taxGst;
                     trip.taxandfee = Convert.ToInt32(taxAndFee);
                 }
-                // Driver fee 
-                //decimal driverFee = taxBase; // hour + night + return only
-                //                             //trip.DriverFee = Math.Round(driverFee, 2);
-                //trip.DriverFee = Convert.ToInt32(Math.Round(driverFee, 2));
+			// Driver fee 
+			//decimal driverFee = taxBase; // hour + night + return only
+			//                             //trip.DriverFee = Math.Round(driverFee, 2);
+			//trip.DriverFee = Convert.ToInt32(Math.Round(driverFee, 2));
 
 
-                // Update Flexi entity with unique code and save changes again
-                await _context.SaveChangesAsync();
+			// Update Flexi entity with unique code and save changes again
+			trip.BroadcastedAt = DateTime.Now;
+			await _context.SaveChangesAsync();
 
                 _context.Trips.Add(trip);
                 await _context.SaveChangesAsync();
@@ -2236,8 +2237,8 @@
                     senderid = $"Upcoming Trip Reminder";
                     message = $"This is an important reminder about your upcoming trip from: \n- Pickup Location: {trip.ToLocationName} \n- Date & Time: {trip.StartDateTime}.";
                 }
-
-              await SendNotification("token", senderid, message,trip);
+			
+			await SendNotification("token", senderid, message,trip);
 
                 return CreatedAtAction("GetTrip", new { id = trip.TripId }, trip);
             }
@@ -2317,7 +2318,8 @@
                             {
                                 if (trip != null)
                                 {
-                                    var ignoredtripsofdriver = _context.IgnoredTrips.Where(c => c.FlexiId == trip.TripId &&c.DriverId ==driver.DriverId).FirstOrDefault();
+								
+								var ignoredtripsofdriver = _context.IgnoredTrips.Where(c => c.FlexiId == trip.TripId &&c.DriverId ==driver.DriverId).FirstOrDefault();
                                     if (trip.FromLocation != null && trip.FromLocation != string.Empty)
                                     {
                                         if (ignoredtripsofdriver == null)
@@ -2345,7 +2347,19 @@
                                             }
                                         }
                                     }
-                                }
+								if (trip.IsAccepted == true)
+								{
+									return Ok();
+								}
+								if (trip.BroadcastedAt.HasValue &&
+		                            DateTime.Now > trip.BroadcastedAt.Value.AddMinutes(20))
+								{
+									trip.IsCancelled = true;
+									_context.Entry(trip).State = EntityState.Modified;
+									await _context.SaveChangesAsync();
+									return Ok();
+								}
+							}
                             }
                         }
 

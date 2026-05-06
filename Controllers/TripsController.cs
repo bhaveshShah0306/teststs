@@ -2220,7 +2220,7 @@
 
 			// Update Flexi entity with unique code and save changes again
 			trip.BroadcastedAt = DateTime.Now;
-			await _context.SaveChangesAsync();
+			
 
                 _context.Trips.Add(trip);
                 await _context.SaveChangesAsync();
@@ -2292,10 +2292,13 @@
 
                             List<int> vehicletypes = vehicletypeStrings.Select(int.Parse).ToList();
                             var tripdata = new List<Trip>();
-                            if (transmissionTypesString != null && transmissionTypesString != string.Empty && vehicletypestring != string.Empty && driver.TransmissionTypeId != null)
+						var cutoff = DateTime.Now.AddMinutes(-20);
+						if (transmissionTypesString != null && transmissionTypesString != string.Empty && vehicletypestring != string.Empty && driver.TransmissionTypeId != null)
                             {
                                 tripdata = _context.Trips
-                            .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue) && c.IsCancelled != true && (c.IsTimeScheduled == false || (c.IsTimeScheduled == true && c.IsReserved != true && c.IsAccepted != true || (c.IsTimeScheduled == true && c.IsReserved == true && c.IsAccepted != true)))
+                            .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue) && c.IsCancelled != true && (c.IsTimeScheduled == false || (c.IsTimeScheduled == true && c.IsReserved != true && c.IsAccepted != true || (c.IsTimeScheduled == true && c.IsReserved == true && c.IsAccepted != true))
+							 && c.BroadcastedAt != null
+			                 && c.BroadcastedAt > cutoff)
                                           && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
                                           && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue) && c.IsAccepted != true)
                             .ToList();

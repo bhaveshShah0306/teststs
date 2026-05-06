@@ -660,8 +660,8 @@ namespace GoChauffeurWebApi.Controllers
                     .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue)&&c.IsCancelled != true && (c.IsTimeScheduled==false || (c.IsTimeScheduled==true&&c.IsReserved!=true&& c.IsAccepted!=true||(c.IsTimeScheduled == true&&c.IsReserved==true && c.IsAccepted != true && c.DriverId == id)))
                                   && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
                                   && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue)&&c.IsAccepted!=true
-								  && (c.BroadcastedAt == null ||
-					              c.BroadcastedAt.Value.AddMinutes(20) > DateTime.Now))
+								  && (c.BroadcastedAt != null 
+                                  &&  c.BroadcastedAt.Value.AddMinutes(20) > DateTime.Now))
                     .ToList();
 
 

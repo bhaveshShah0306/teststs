@@ -23,82 +23,176 @@ namespace GoChauffeurWebApi.Controllers
             _log = loggerFactory.CreateLogger("AcceptBookingLogger"); // Custom logger for API
 
         }
+        #region old accept booking
+        //  [HttpPost]
+        //  public async Task<ActionResult<Trip>> AcceptTrip(int id, int DriverId, int triptypeId, int flag)
+        //  {
+        //      try
+        //      {
+        //          var tripdata = await _context.Trips.FindAsync(id);
+        //          if (tripdata != null)
+        //          {
+        //                  tripdata.DriverId = DriverId;
+        //                  if (flag == 1)
+        //                  {
+        //                      tripdata.IsReserved = true;
+        //    tripdata.IsAccepted = true; // mark to accept as soon as it is accepted so no other driver accepts it.
 
+        //var userdata = await _context.Users.FindAsync(tripdata.UserId);
+        //                      if (userdata != null)
+        //                      {
+        //                          string text = $"Dear Patron, Your booking is confirmed! Driver details will be shared 30 mins prior to scheduled time. Booking ID: {tripdata.TripId}. Track your booking on GoChauffeurs app!";
+        //                          string encodedText = System.Web.HttpUtility.UrlEncode(text);  // URL-encode the message
+
+        //                          var url = $"http://text.justsms.co.in/api.php?username=varaahi&apikey=cb2968ba7b0cbc38adb4&senderid=GOCHFF&templateid=1707171475632442759&mobile={userdata.PhoneNumber}&message={encodedText}";
+
+        //                          using (HttpClient client = new HttpClient())
+        //                          {
+        //                              HttpResponseMessage response = await client.GetAsync(url);
+        //                              _log.LogInformation($"SMS response for user for normal trips {DateTime.Now}: {response.StatusCode}");
+        //                          }
+        //                      }
+        //                  }
+        //                  else if (flag == 2 && tripdata.IsReserved == true)
+        //                  {
+
+        //                       tripdata.IsAccepted = true;
+
+        //                      var driverdata = await _context.Drivers.FindAsync(DriverId);
+        //                      var userdata = await _context.Users.FindAsync(tripdata.UserId);
+        //                      if (driverdata != null && userdata != null)
+        //                      {
+        //                          string text = $"Dear Patron, Mr. {driverdata.DriverName} is on his way to drive your vehicle today. You can reach him on {driverdata.PhoneNumber}. You can track his arrival status via the Go Chauffeurs app.";
+        //                          string encodedText = System.Web.HttpUtility.UrlEncode(text);  // URL-encode the message
+
+        //                          var url = $"http://text.justsms.co.in/api.php?username=varaahi&apikey=cb2968ba7b0cbc38adb4&senderid=GOCHFF&templateid=1707171475712594902&mobile={userdata.PhoneNumber}&message={encodedText}";
+
+        //                          using (HttpClient client = new HttpClient())
+        //                          {
+        //                              HttpResponseMessage response = await client.GetAsync(url);
+        //                              _log.LogInformation($"SMS response for user for normal trips {DateTime.Now}: {response.StatusCode}");
+        //                          }
+        //                      }
+        //                  }
+        //                  else
+        //                  {
+        //                      return BadRequest("Trip has to be reserved first");
+        //                  }
+
+        //                  _context.Entry(tripdata).State = EntityState.Modified;
+        //                  await _context.SaveChangesAsync();
+
+        //                  return Ok(tripdata);
+
+        //          }
+        //          else
+        //          {
+        //              return NoContent();
+        //          }
+        //      }
+        //      catch (Exception ex)
+        //      {
+        //          _log.LogError(ex, "Error in AcceptTrip");
+        //          return BadRequest(ex.Message);
+        //      }
+        //  }
+        #endregion 
         [HttpPost]
-        public async Task<ActionResult<Trip>> AcceptTrip(int id, int DriverId, int triptypeId, int flag)
-        {
-            try
-            {
-                var tripdata = await _context.Trips.FindAsync(id);
-                if (tripdata != null)
-                {
-                        tripdata.DriverId = DriverId;
-                        if (flag == 1)
-                        {
-                            tripdata.IsReserved = true;
-						    tripdata.IsAccepted = true; // mark to accept as soon as it is accepted so no other driver accepts it.
+		public async Task<ActionResult<Trip>> AcceptTrip(int id, int DriverId, int triptypeId, int flag)
+		{
+			try
+			{
+				if (flag == 1)
+				{
+					var cutoff = DateTime.Now.AddMinutes(-20);
 
-						var userdata = await _context.Users.FindAsync(tripdata.UserId);
-                            if (userdata != null)
-                            {
-                                string text = $"Dear Patron, Your booking is confirmed! Driver details will be shared 30 mins prior to scheduled time. Booking ID: {tripdata.TripId}. Track your booking on GoChauffeurs app!";
-                                string encodedText = System.Web.HttpUtility.UrlEncode(text);  // URL-encode the message
+					// ATOMIC via EF Core ExecuteUpdateAsync — targets only rows matching
+					// all conditions simultaneously 
+					int rowsAffected = await _context.Trips
+						.Where(t =>
+							t.TripId == id &&
+							t.IsAccepted != true &&
+							t.IsCancelled != true &&
+							t.BroadcastedAt != null &&
+							t.BroadcastedAt > cutoff)
+						.ExecuteUpdateAsync(setters => setters
+							.SetProperty(t => t.DriverId, DriverId)
+							.SetProperty(t => t.IsReserved, true)
+							.SetProperty(t => t.IsAccepted, true));
 
-                                var url = $"http://text.justsms.co.in/api.php?username=varaahi&apikey=cb2968ba7b0cbc38adb4&senderid=GOCHFF&templateid=1707171475632442759&mobile={userdata.PhoneNumber}&message={encodedText}";
+					if (rowsAffected == 0)
+					{
+						return BadRequest("Trip is no longer available. It may have been accepted by another driver or the broadcast window has expired.");
+					}
 
-                                using (HttpClient client = new HttpClient())
-                                {
-                                    HttpResponseMessage response = await client.GetAsync(url);
-                                    _log.LogInformation($"SMS response for user for normal trips {DateTime.Now}: {response.StatusCode}");
-                                }
-                            }
-                        }
-                        else if (flag == 2 && tripdata.IsReserved == true)
-                        {
-                              
-                             tripdata.IsAccepted = true;
+					// Re-fetch after update — EF cache won't have the updated state
+					// since ExecuteUpdateAsync bypasses the change tracker
+					var tripdata = await _context.Trips
+						.AsNoTracking()
+						.FirstOrDefaultAsync(t => t.TripId == id);
 
-                            var driverdata = await _context.Drivers.FindAsync(DriverId);
-                            var userdata = await _context.Users.FindAsync(tripdata.UserId);
-                            if (driverdata != null && userdata != null)
-                            {
-                                string text = $"Dear Patron, Mr. {driverdata.DriverName} is on his way to drive your vehicle today. You can reach him on {driverdata.PhoneNumber}. You can track his arrival status via the Go Chauffeurs app.";
-                                string encodedText = System.Web.HttpUtility.UrlEncode(text);  // URL-encode the message
+					if (tripdata == null) return NoContent();
 
-                                var url = $"http://text.justsms.co.in/api.php?username=varaahi&apikey=cb2968ba7b0cbc38adb4&senderid=GOCHFF&templateid=1707171475712594902&mobile={userdata.PhoneNumber}&message={encodedText}";
+					var userdata = await _context.Users.FindAsync(tripdata.UserId);
+					if (userdata != null)
+					{
+						string text = $"Dear Patron, Your booking is confirmed! Driver details will be shared 30 mins prior to scheduled time. Booking ID: {tripdata.TripId}. Track your booking on GoChauffeurs app!";
+						string encodedText = System.Web.HttpUtility.UrlEncode(text);
+						var url = $"http://text.justsms.co.in/api.php?username=varaahi&apikey=cb2968ba7b0cbc38adb4&senderid=GOCHFF&templateid=1707171475632442759&mobile={userdata.PhoneNumber}&message={encodedText}";
 
-                                using (HttpClient client = new HttpClient())
-                                {
-                                    HttpResponseMessage response = await client.GetAsync(url);
-                                    _log.LogInformation($"SMS response for user for normal trips {DateTime.Now}: {response.StatusCode}");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            return BadRequest("Trip has to be reserved first");
-                        }
+						using (HttpClient client = new HttpClient())
+						{
+							HttpResponseMessage response = await client.GetAsync(url);
+							_log.LogInformation($"SMS response for user for normal trips {DateTime.Now}: {response.StatusCode}");
+						}
+					}
 
-                        _context.Entry(tripdata).State = EntityState.Modified;
-                        await _context.SaveChangesAsync();
+					return Ok(tripdata);
+				}
+				else if (flag == 2)
+				{
+					var tripdata = await _context.Trips.FindAsync(id);
+					if (tripdata == null) return NoContent();
 
-                        return Ok(tripdata);
-                    
-                }
-                else
-                {
-                    return NoContent();
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Error in AcceptTrip");
-                return BadRequest(ex.Message);
-            }
-        }
+					if (tripdata.IsReserved != true)
+						return BadRequest("Trip has to be reserved first");
+
+					tripdata.IsAccepted = true;
+					_context.Entry(tripdata).State = EntityState.Modified;
+					await _context.SaveChangesAsync();
+
+					var driverdata = await _context.Drivers.FindAsync(DriverId);
+					var userdata = await _context.Users.FindAsync(tripdata.UserId);
+
+					if (driverdata != null && userdata != null)
+					{
+						string text = $"Dear Patron, Mr. {driverdata.DriverName} is on his way to drive your vehicle today. You can reach him on {driverdata.PhoneNumber}. You can track his arrival status via the Go Chauffeurs app.";
+						string encodedText = System.Web.HttpUtility.UrlEncode(text);
+						var url = $"http://text.justsms.co.in/api.php?username=varaahi&apikey=cb2968ba7b0cbc38adb4&senderid=GOCHFF&templateid=1707171475712594902&mobile={userdata.PhoneNumber}&message={encodedText}";
+
+						using (HttpClient client = new HttpClient())
+						{
+							HttpResponseMessage response = await client.GetAsync(url);
+							_log.LogInformation($"SMS response for user for normal trips {DateTime.Now}: {response.StatusCode}");
+						}
+					}
+
+					return Ok(tripdata);
+				}
+				else
+				{
+					return BadRequest("Invalid flag value.");
+				}
+			}
+			catch (Exception ex)
+			{
+				_log.LogError(ex, "Error in AcceptTrip");
+				return BadRequest(ex.Message);
+			}
+		}
 
 
-        [HttpPost("Immdiate/{id}")]
+		[HttpPost("Immdiate/{id}")]
         public async Task<ActionResult<Trip>> ImmediaetAcceptTrip(int id, int DriverId, int triptypeId)
         {
             try

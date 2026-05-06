@@ -693,8 +693,8 @@ namespace GoChauffeurWebApi.Controllers
                             foreach (var trip in tripdata)
                             {
                                 var ignoredtripsofdriver = ignoretrips.Where(c => c.FlexiId == trip.TripId).FirstOrDefault();
-                                if (trip.FromLocation != null && trip.FromLocation != string.Empty)
-                                {
+								if (!string.IsNullOrEmpty(trip.FromLocation))
+								{
 
                                     if (ignoredtripsofdriver == null)
                                     {
@@ -2294,25 +2294,18 @@ namespace GoChauffeurWebApi.Controllers
                     var tripdata = new List<Trip>();
                     if (transmissionTypesString != null && transmissionTypesString != string.Empty && vehicletypestring != string.Empty && drivers.TransmissionTypeId != null)
                     {
-                        var driverId = id; // Specify the DriverId to check
-                        tripdata = _context.Trips
-                       .Where(c => (c.DriverId == 0 || c.DriverId == null )&&c.IsCancelled!=true
-                                  && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
-                                  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue))
-                       .ToList();
+						var cutoff = DateTime.Now.AddMinutes(-20);
 
-                      //&& c.StartDateTime >= DateTime.Now
+						tripdata = _context.Trips
+						   .Where(c => c.IsCancelled != true
+									  && c.IsAccepted != true
+									  && c.BroadcastedAt != null
+									  && c.BroadcastedAt > cutoff
+									  && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
+									  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue))
+						   .ToList();
 
-                        // Filter based on acceptance status
-                        var hasAcceptedTripsForDriver = tripdata.Any(t => t.IsAccepted!=true);
-
-                        if (hasAcceptedTripsForDriver)
-                        {
-                            // If there are accepted trips for the specified DriverId, filter to show only those trips that are not accepted by any driver
-                            tripdata = tripdata.Where(t => t.IsAccepted != true).ToList();
-                        }
-
-                    }
+					}
                     else
                     {
                         return BadRequest("Please contact admin to update vehicletypes ");

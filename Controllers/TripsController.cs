@@ -2220,22 +2220,14 @@
 			//decimal driverFee = taxBase; // hour + night + return only
 			//                             //trip.DriverFee = Math.Round(driverFee, 2);
 			//trip.DriverFee = Convert.ToInt32(Math.Round(driverFee, 2));
-
-			if (trip.StartDateTime.HasValue)
+			var nightCfg = _context.NightCharges.FirstOrDefault();
+			if (nightCfg.StartTime.HasValue && nightCfg.EndTime.HasValue)
 			{
-				var nightChargeConfig = await _context.NightCharges.FirstOrDefaultAsync();
-				if (nightChargeConfig != null)
-				{
-					var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
-
-					// Parse DB times (stored as "21:00:00" / "06:00:00")
-					var nightStart = nightChargeConfig.StartTime?.TimeOfDay ?? new TimeSpan(21, 0, 0);
-					var nightEnd = nightChargeConfig.EndTime?.TimeOfDay ?? new TimeSpan(6, 0, 0);
-
-					// Night window spans midnight: start >= 21:00 OR end <= 06:00
-					bool isNightTime = scheduledTime >= nightStart || scheduledTime <= nightEnd;
-					trip.nightCharge = isNightTime ? Convert.ToInt32(nightChargeConfig.Charges ?? 0) : 0;
-				}
+				var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
+				var nightStart = nightCfg.StartTime.Value.TimeOfDay;
+				var nightEnd = nightCfg.EndTime.Value.TimeOfDay;
+				bool isNightTime = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+				trip.nightCharge = isNightTime ? Convert.ToInt32(nightCfg.Charges ?? 0) : 0;
 			}
 
 

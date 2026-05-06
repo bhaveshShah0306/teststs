@@ -68,7 +68,7 @@ namespace GoChauffeurWebApi.Controllers
 						tripVM.Istripcompleted = trip.IsTripCompByDriver;
 						if(tripVM.Istripcompleted == true)
 						{
-							tripVM.TotalTripValue = trip.TotalTripValue;
+							tripVM.TotalTripValue = (trip.TotalTripValue ?? 0) + (trip.nightCharge ?? 0);
 							tripVM.Hours = trip.NoOfHoursActual;
 							tripVM.FromTime = trip.StartDateTime;
 
@@ -76,7 +76,7 @@ namespace GoChauffeurWebApi.Controllers
 						}
 						else
 						{
-							tripVM.TotalTripValue = trip.EstimatedPrice;
+							tripVM.TotalTripValue = trip.EstimatedPrice + (trip.nightCharge ?? 0);
 							tripVM.Hours = trip.NoOfHoursSelected;
 							tripVM.ToTime = trip.EndDateTime;
 

@@ -2322,7 +2322,24 @@
 								var ignoredtripsofdriver = _context.IgnoredTrips.Where(c => c.FlexiId == trip.TripId &&c.DriverId ==driver.DriverId).FirstOrDefault();
                                     if (trip.FromLocation != null && trip.FromLocation != string.Empty)
                                     {
-                                        if (ignoredtripsofdriver == null)
+									var currentTripState = await _context.Trips
+                                                                               .AsNoTracking()
+                                                                               .Where(t => t.TripId == trip.TripId)
+                                                                               .Select(t => new { t.IsAccepted, t.BroadcastedAt })
+                                                                               .FirstOrDefaultAsync();
+									if (currentTripState.IsAccepted == true)
+									{
+										return Ok();
+									}
+
+									// Stop if broadcast window expired — do NOT cancel, just stop notifying
+									// Trip stays in DB intact, user unaffected, admin can still query it
+									if (currentTripState.BroadcastedAt.HasValue &&
+										DateTime.Now > currentTripState.BroadcastedAt.Value.AddMinutes(20))
+									{
+										return Ok(); // silently stop — no IsCancelled, no DB write
+									}
+									if (ignoredtripsofdriver == null)
                                         {
                                             DateTime? newDateTime = trip.StartDateTime.HasValue ? trip.StartDateTime.Value.AddHours(4) : (DateTime?)null;
                                             if (newDateTime <= DateTime.Now)
@@ -2347,18 +2364,7 @@
                                             }
                                         }
                                     }
-								if (trip.IsAccepted == true)
-								{
-									return Ok();
-								}
-								if (trip.BroadcastedAt.HasValue &&
-		                            DateTime.Now > trip.BroadcastedAt.Value.AddMinutes(20))
-								{
-									trip.IsCancelled = true;
-									_context.Entry(trip).State = EntityState.Modified;
-									await _context.SaveChangesAsync();
-									return Ok();
-								}
+								
 							}
                             }
                         }

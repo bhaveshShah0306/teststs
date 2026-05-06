@@ -2136,15 +2136,19 @@
                 trip.IsTripStarted = false;
                 trip.IsTripCompByDriver = false;
                 trip.IsdriverArrived = false;
-                if (trip.StartDateTime.HasValue)
-                {
-                    TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+			//if (trip.StartDateTime.HasValue)
+			//{
+			//    TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
-                    DateTime istStartDateTime = TimeZoneInfo.ConvertTimeFromUtc(trip.StartDateTime.Value, istTimeZone);
+			//    DateTime istStartDateTime = TimeZoneInfo.ConvertTimeFromUtc(trip.StartDateTime.Value, istTimeZone);
 
-                    trip.StartDateTime = istStartDateTime;
-                }
-                var numberofhours = trip.NoOfHoursSelected;
+			//    trip.StartDateTime = istStartDateTime;
+			//}
+			if (trip.StartDateTime.HasValue)
+			{
+				trip.StartDateTime = DateTime.SpecifyKind(trip.StartDateTime.Value, DateTimeKind.Unspecified);
+			}
+			var numberofhours = trip.NoOfHoursSelected;
 
                 if (numberofhours != null)
                 {
@@ -2216,6 +2220,24 @@
 			//decimal driverFee = taxBase; // hour + night + return only
 			//                             //trip.DriverFee = Math.Round(driverFee, 2);
 			//trip.DriverFee = Convert.ToInt32(Math.Round(driverFee, 2));
+
+			if (trip.StartDateTime.HasValue)
+			{
+				var nightChargeConfig = await _context.NightCharges.FirstOrDefaultAsync();
+				if (nightChargeConfig != null)
+				{
+					var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
+
+					// Parse DB times (stored as "21:00:00" / "06:00:00")
+					var nightStart = nightChargeConfig.StartTime?.TimeOfDay ?? new TimeSpan(21, 0, 0);
+					var nightEnd = nightChargeConfig.EndTime?.TimeOfDay ?? new TimeSpan(6, 0, 0);
+
+					// Night window spans midnight: start >= 21:00 OR end <= 06:00
+					bool isNightTime = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+					trip.nightCharge = isNightTime ? Convert.ToInt32(nightChargeConfig.Charges ?? 0) : 0;
+				}
+			}
+
 
 
 			// Update Flexi entity with unique code and save changes again

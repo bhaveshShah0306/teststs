@@ -30,10 +30,20 @@ namespace GoChauffeurWebApi.Controllers
 			{
 				var tripsList = _context.Trips.ToList();
 				var tripsVMList = new List<UserTripsVM>();
-				if(tripsList.Count > 0)
+				var nightCfg = _context.NightCharges.FirstOrDefault();
+				if (tripsList.Count > 0)
 				{
-					foreach(var trip in tripsList)
+					foreach (var trip in tripsList)
 					{
+						// Apply night charge from DB based on scheduled StartDateTime
+						if (trip.StartDateTime.HasValue && nightCfg != null && nightCfg.StartTime.HasValue && nightCfg.EndTime.HasValue)
+						{
+							var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
+							var nightStart = nightCfg.StartTime.Value.TimeOfDay;
+							var nightEnd = nightCfg.EndTime.Value.TimeOfDay;
+							bool isNight = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+							trip.nightCharge = isNight ? Convert.ToInt32(nightCfg.Charges ?? 0) : 0;
+						}
 						var tripVM = new UserTripsVM();
 						tripVM.TripId = trip.TripId;
 						tripVM.FromTime = trip.StartDateTime;
@@ -162,16 +172,17 @@ namespace GoChauffeurWebApi.Controllers
 						tripVM.Istripcompleted = trip.IsTripCompByDriver;
 						if (tripVM.Istripcompleted == true)
 						{
-							tripVM.TotalTripValue = trip.TotalTripValue;
+							tripVM.TotalTripValue = (trip.TotalTripValue ?? 0) + (trip.nightCharge ?? 0);
 							tripVM.Hours = trip.NoOfHoursActual;
 							tripVM.ToTime = trip.ActualEndTime;
 						}
 						else
 						{
-							tripVM.TotalTripValue = trip.EstimatedPrice;
+							tripVM.TotalTripValue = trip.EstimatedPrice + (trip.nightCharge ?? 0);
 							tripVM.Hours = trip.NoOfHoursSelected;
 							tripVM.ToTime = trip.EndDateTime;
 						}
+						
 						tripVM.IsCancelled = trip.IsCancelled;
 						tripVM.IsProcessing = trip.IsProcessing;
 						tripVM.IsAccepted = trip.IsAccepted;
@@ -439,10 +450,20 @@ namespace GoChauffeurWebApi.Controllers
 				var tripsList = _context.Trips.Where(c=>c.UserId == userId&&c.TripStatus == tripstatusid).ToList();
 
 				var tripsVMList = new List<UserTripsVM>();
-				if(tripsList.Count > 0)
+				var nightCfg = _context.NightCharges.FirstOrDefault();
+				if (tripsList.Count > 0)
 				{
-					foreach(var trip in tripsList)
+					foreach (var trip in tripsList)
 					{
+						if (trip.StartDateTime.HasValue && nightCfg != null
+							&& nightCfg.StartTime.HasValue && nightCfg.EndTime.HasValue)
+						{
+							var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
+							var nightStart = nightCfg.StartTime.Value.TimeOfDay;
+							var nightEnd = nightCfg.EndTime.Value.TimeOfDay;
+							bool isNight = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+							trip.nightCharge = isNight ? Convert.ToInt32(nightCfg.Charges ?? 0) : 0;
+						}
 						var tripVM = new UserTripsVM();
 						tripVM.TripId = trip.TripId;
 						tripVM.DriverId = trip.DriverId;
@@ -468,22 +489,19 @@ namespace GoChauffeurWebApi.Controllers
 							tripVM.TransmissionTypeName = transmissiontypedata.TransmissionName;
 						}
 						tripVM.Istripcompleted = trip.IsTripCompByDriver;
-						if(tripVM.Istripcompleted == true)
+						if (tripVM.Istripcompleted == true)
 						{
-							tripVM.TotalTripValue = trip.TotalTripValue;
+							tripVM.TotalTripValue = (trip.TotalTripValue ?? 0) + (trip.nightCharge ?? 0);
 							tripVM.Hours = trip.NoOfHoursActual;
 							tripVM.ToTime = trip.ActualEndTime;
-
-
 						}
 						else
 						{
-							tripVM.TotalTripValue = trip.EstimatedPrice;
+							tripVM.TotalTripValue = trip.EstimatedPrice + (trip.nightCharge ?? 0);
 							tripVM.Hours = trip.NoOfHoursSelected;
 							tripVM.ToTime = trip.EndDateTime;
-
-
 						}
+						//if (trip.StartDateTime.HasValue)
 						//if (trip.StartDateTime.HasValue)
 						//{
 						//	if (trip.StartDateTime.Value.Kind == DateTimeKind.Utc)
@@ -559,17 +577,17 @@ namespace GoChauffeurWebApi.Controllers
 					}
 					if (trip.StartDateTime.HasValue)
 					{
-						if (trip.StartDateTime.Value.Kind == DateTimeKind.Utc)
+						var nightCfg = _context.NightCharges.FirstOrDefault();
+						if (nightCfg != null && nightCfg.StartTime.HasValue && nightCfg.EndTime.HasValue)
 						{
-							TimeZoneInfo ist = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-							trip.StartDateTime =
-								TimeZoneInfo.ConvertTimeFromUtc(trip.StartDateTime.Value, ist);
-						}
-						if (trip.StartDateTime.Value.TimeOfDay >= new TimeSpan(21, 0, 0))
-						{
-							trip.nightCharge = 200;
+							var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
+							var nightStart = nightCfg.StartTime.Value.TimeOfDay;
+							var nightEnd = nightCfg.EndTime.Value.TimeOfDay;
+							bool isNight = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+							trip.nightCharge = isNight ? Convert.ToInt32(nightCfg.Charges ?? 0) : 0;
 						}
 					}
+					tripVM.Istripcompleted = trip.IsTripCompByDriver;
 					tripVM.Istripcompleted = trip.IsTripCompByDriver;
 					if (tripVM.Istripcompleted == true)
 					{
@@ -796,18 +814,18 @@ namespace GoChauffeurWebApi.Controllers
 					tripVM.RideFare = trip.TotalTripValue;
 					if (trip.StartDateTime.HasValue)
 					{
-						if (trip.StartDateTime.Value.Kind == DateTimeKind.Utc)
+						var nightCfg = _context.NightCharges.FirstOrDefault();
+						if (nightCfg != null && nightCfg.StartTime.HasValue && nightCfg.EndTime.HasValue)
 						{
-							TimeZoneInfo ist = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-							trip.StartDateTime =
-								TimeZoneInfo.ConvertTimeFromUtc(trip.StartDateTime.Value, ist);
-						}
-						if (trip.StartDateTime.Value.TimeOfDay >= new TimeSpan(21, 0, 0))
-						{
-							trip.nightCharge = 200;
+							var scheduledTime = trip.StartDateTime.Value.TimeOfDay;
+							var nightStart = nightCfg.StartTime.Value.TimeOfDay;
+							var nightEnd = nightCfg.EndTime.Value.TimeOfDay;
+							bool isNight = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+							trip.nightCharge = isNight ? Convert.ToInt32(nightCfg.Charges ?? 0) : 0;
 						}
 					}
 					tripVM.NightCharges = trip.nightCharge;
+					 
 
 					if (tripVM.Istripcompleted == true)
 					{

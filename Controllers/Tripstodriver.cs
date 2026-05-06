@@ -655,18 +655,28 @@ namespace GoChauffeurWebApi.Controllers
                     var tripdata = new List<Trip>();
                     if (transmissionTypesString != null && transmissionTypesString != string.Empty && vehicletypestring != string.Empty && drivers.TransmissionTypeId != null)
                     {
-                        var driverId = id; // Specify the DriverId to check
-                        tripdata = _context.Trips
-                    .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue)&&c.IsCancelled != true && (c.IsTimeScheduled==false || (c.IsTimeScheduled==true&&c.IsReserved!=true&& c.IsAccepted!=true||(c.IsTimeScheduled == true&&c.IsReserved==true && c.IsAccepted != true && c.DriverId == id)))
-                                  && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
-                                  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue)&&c.IsAccepted!=true
-								  && (c.BroadcastedAt != null 
-                                  &&  c.BroadcastedAt.Value.AddMinutes(20) > DateTime.Now))
-                    .ToList();
+						//              var driverId = id; // Specify the DriverId to check
+						//              tripdata = _context.Trips
+						//          .Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue)&&c.IsCancelled != true && (c.IsTimeScheduled==false || (c.IsTimeScheduled==true&&c.IsReserved!=true&& c.IsAccepted!=true||(c.IsTimeScheduled == true&&c.IsReserved==true && c.IsAccepted != true && c.DriverId == id)))
+						//                        && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
+						//                        && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue)&&c.IsAccepted!=true
+						//&& (c.BroadcastedAt != null 
+						//                        &&  c.BroadcastedAt.Value.AddMinutes(20) > DateTime.Now))
+						//          .ToList();
+						var cutoffTime = DateTime.Now.AddMinutes(-20);
+						tripdata = _context.Trips
+					.Where(c => (c.DriverId == 0 || c.DriverId == null || c.DriverId.HasValue) && c.IsCancelled != true
+								  && (c.IsTimeScheduled == false || (c.IsTimeScheduled == true && c.IsReserved != true && c.IsAccepted != true || (c.IsTimeScheduled == true && c.IsReserved == true && c.IsAccepted != true && c.DriverId == id)))
+								  && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
+								  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue) && c.IsAccepted != true
+								  && c.BroadcastedAt != null
+								  // Scheduled trips have no 20-min expiry; instant trips must be within window
+								  && (c.IsTimeScheduled == true || c.BroadcastedAt.Value.AddMinutes(20) > DateTime.Now))
+					.ToList();
 
 
 
-                    }
+					}
                     else
                     {
                         return BadRequest("Please contact admin to update vehicletypes ");
@@ -2300,7 +2310,8 @@ namespace GoChauffeurWebApi.Controllers
 						   .Where(c => c.IsCancelled != true
 									  && c.IsAccepted != true
 									  && c.BroadcastedAt != null
-									  && c.BroadcastedAt > cutoff
+									  // Scheduled trips are exempt from the 20-min broadcast window
+									  && (c.IsTimeScheduled == true || c.BroadcastedAt > cutoff)
 									  && (transmissionTypes.Contains(c.TransmissionTypeId.Value) || !c.TransmissionTypeId.HasValue)
 									  && (vehicletypes.Contains(c.VehicleTypeId.Value) || !c.VehicleTypeId.HasValue))
 						   .ToList();

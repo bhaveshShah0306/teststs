@@ -611,6 +611,7 @@ namespace GoChauffeurWebApi.Controllers
 
 		/// Sree upadted code 
 		#endregion
+        //ignore commented region duhh!!
 
 		[HttpGet]
         public async Task<ActionResult<IEnumerable<TripVM>>> GetTrips(int id)
@@ -895,32 +896,22 @@ namespace GoChauffeurWebApi.Controllers
                                                 tripVM.BasePrice = triptypevariantdata.BasePrice;
 
                                                 tripVM.KilometerLimit = triptypevariantdata.KilometerLimit;
-                                                if (tripVM.StartDate.HasValue && tripVM.EndDate.HasValue)
-                                                {
-                                                    // Assuming the time part of StartDate and EndDate is to be ignored and you are only working with the date part
-                                                    DateTime tripnightchargestartTime = DateTime.ParseExact("10:00 PM", "hh:mm tt", CultureInfo.InvariantCulture);
-                                                    DateTime tripnightchargesendTime = DateTime.ParseExact("06:00 AM", "hh:mm tt", CultureInfo.InvariantCulture);
+												var nightCfgDriver = _context.NightCharges.FirstOrDefault();
+												if (nightCfgDriver != null && nightCfgDriver.StartTime.HasValue && nightCfgDriver.EndTime.HasValue
+													&& tripVM.StartDate.HasValue)
+												{
+													var scheduledTime = tripVM.StartDate.Value.TimeOfDay;
+													var nightStart = nightCfgDriver.StartTime.Value.TimeOfDay;
+													var nightEnd = nightCfgDriver.EndTime.Value.TimeOfDay;
+													bool isNight = scheduledTime >= nightStart || scheduledTime <= nightEnd;
+													tripVM.NightCharges = isNight ? nightCfgDriver.Charges : 0;
+												}
+												else
+												{
+													tripVM.NightCharges = 0;
+												}
 
-                                                    // Assuming the logic checks if StartDate is within the night charge period
-                                                    DateTime startDate = tripVM.StartDate.Value;
-                                                    DateTime endDate = tripVM.EndDate.Value;
-
-                                                    if (startDate.TimeOfDay >= tripnightchargestartTime.TimeOfDay || endDate.TimeOfDay <= tripnightchargesendTime.TimeOfDay)
-                                                    {
-                                                        tripVM.NightCharges = triptypevariantdata.NightCharges;
-                                                    }
-                                                    else
-                                                    {
-                                                        tripVM.NightCharges = 0;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    // Handle the case where StartDate or EndDate is null, if necessary
-                                                    tripVM.NightCharges = 0;
-                                                }
-
-                                                tripVM.ChargesperMinute = triptypevariantdata.ChargesperMinute;
+												tripVM.ChargesperMinute = triptypevariantdata.ChargesperMinute;
 
                                                 tripVM.PricePerKilometers = triptypevariantdata.PricePerKilometers;
 
@@ -1165,7 +1156,7 @@ namespace GoChauffeurWebApi.Controllers
                                            .OrderByDescending(c => c.DriversubscriptionId) // Sort by the latest date first
                                            .FirstOrDefaultAsync();
                                                 tripVM.ActualEndTime = trip.ActualEndTime.ToString();
-                                                tripVM.StartTime= trip.StartDateTime.ToString();
+                                                tripVM.StartTime = String.Format("{0:h:mm tt}", trip.StartDateTime);
                                                 tripVM.DriverPrice = trip.DriversPrice.ToString();
                                                 TimeSpan? timeDifference = trip.ActualEndTime - trip.StartDateTime;
                                                 if (timeDifference.HasValue)
@@ -2978,8 +2969,8 @@ namespace GoChauffeurWebApi.Controllers
                                        .OrderByDescending(c => c.DriversubscriptionId) // Sort by the latest date first
                                        .FirstOrDefaultAsync();
                                             tripVM.ActualEndTime = trip.ActualEndTime.ToString();
-                                            tripVM.StartTime = trip.StartDateTime.ToString();
-                                            tripVM.DriverPrice = trip.DriversPrice.ToString();
+											tripVM.StartTime = String.Format("{0:h:mm tt}", trip.StartDateTime);
+											tripVM.DriverPrice = trip.DriversPrice.ToString();
                                             TimeSpan? timeDifference = trip.ActualEndTime - trip.StartDateTime;
                                             if (timeDifference.HasValue)
                                             {

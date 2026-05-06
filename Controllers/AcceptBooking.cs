@@ -113,8 +113,8 @@ namespace GoChauffeurWebApi.Controllers
 							t.TripId == id &&
 							t.IsAccepted != true &&
 							t.IsCancelled != true &&
-							t.BroadcastedAt != null &&
-							t.BroadcastedAt > cutoff)
+							t.BroadcastedAt != null
+							&& (t.IsTimeScheduled == true || t.BroadcastedAt > cutoff))
 						.ExecuteUpdateAsync(setters => setters
 							.SetProperty(t => t.DriverId, DriverId)
 							.SetProperty(t => t.IsReserved, true)
